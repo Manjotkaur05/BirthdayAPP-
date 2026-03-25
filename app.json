@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Shine",
+    "slug": "shine-birthday-app",
+    "version": "1.0.0",
+    "scheme": "shine",
+    "orientation": "portrait",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.shine.birthdayapp"
+    },
+    "android": {
+      "package": "com.shine.birthdayapp",
+      "adaptiveIcon": {
+        "backgroundColor": "#efc4d3"
+      }
+    }
+  }
+}
