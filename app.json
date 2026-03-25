@@ -10,12 +10,20 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.shine.birthdayapp"
+      "bundleIdentifier": "com.shine.birthdayapp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.shine.birthdayapp",
       "adaptiveIcon": {
         "backgroundColor": "#efc4d3"
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "3b6c0800-95b3-4aa9-b044-e776ac410d31"
       }
     }
   }
