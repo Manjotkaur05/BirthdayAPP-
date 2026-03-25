@@ -1,126 +1,146 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, Vibration, View } from "react-native";
 import * as Haptics from "expo-haptics";
-import { Audio } from "expo-av";
 import PinkBackground from "../components/PinkBackground";
 import theme from "../theme";
 
 export default function BioGameScreen() {
-  const [lipstick, setLipstick] = useState(theme.salmonPink);
-  const [blush, setBlush] = useState(theme.classicPink);
-  const [eyeshadow, setEyeshadow] = useState(theme.cherryBlossom);
-  const [lookMessage, setLookMessage] = useState("Create your cutest birthday glam look! ✨");
-  const [tapSound, setTapSound] = useState(null);
-  const [winSound, setWinSound] = useState(null);
+  const ROWS = 10;
+  const COLS = 10;
+  const OBSTACLES = useMemo(
+    () =>
+      new Set([
+        "1-3", "1-4", "1-5",
+        "2-3", "3-3", "4-3",
+        "3-6", "4-6", "5-6",
+        "6-2", "6-3", "6-4",
+        "7-7", "7-8", "8-7",
+      ]),
+    []
+  );
+  const START = { row: 0, col: 0 };
 
-  const colorChoices = [theme.palePink, theme.classicPink, theme.cherryBlossom, theme.lightPink, theme.salmonPink];
+  const [bunny, setBunny] = useState(START);
+  const [direction, setDirection] = useState("right");
+  const [running, setRunning] = useState(true);
+  const [message, setMessage] = useState("Guide bunny to eat all strawberries! 🍓");
+  const [strawberries, setStrawberries] = useState(() => createStrawberries(ROWS, COLS, OBSTACLES, START));
+
+  const totalStrawberries = strawberries.size;
 
   useEffect(() => {
-    let mounted = true;
+    if (!running || strawberries.size === 0) return;
+    const timer = setInterval(() => {
+      moveBunny(direction);
+    }, 330);
+    return () => clearInterval(timer);
+  }, [direction, running, strawberries.size]);
 
-    async function loadSounds() {
-      try {
-        await Audio.setAudioModeAsync({
-          playsInSilentModeIOS: true,
-        });
-        const tap = await Audio.Sound.createAsync({
-          uri: "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg",
-        });
-        const win = await Audio.Sound.createAsync({
-          uri: "https://actions.google.com/sounds/v1/cartoon/concussive_drum_hit.ogg",
-        });
-        if (!mounted) {
-          await tap.sound.unloadAsync();
-          await win.sound.unloadAsync();
-          return;
-        }
-        setTapSound(tap.sound);
-        setWinSound(win.sound);
-      } catch {
-        // Sound is optional; game still works without audio.
+  function cellKey(row, col) {
+    return `${row}-${col}`;
+  }
+
+  function moveBunny(nextDirection) {
+    setBunny((prev) => {
+      let { row, col } = prev;
+      if (nextDirection === "up") row -= 1;
+      if (nextDirection === "down") row += 1;
+      if (nextDirection === "left") col -= 1;
+      if (nextDirection === "right") col += 1;
+
+      if (row < 0 || row >= ROWS || col < 0 || col >= COLS) {
+        return prev;
       }
-    }
+      if (OBSTACLES.has(cellKey(row, col))) {
+        return prev;
+      }
 
-    loadSounds();
+      const key = cellKey(row, col);
+      setStrawberries((current) => {
+        if (!current.has(key)) return current;
+        const next = new Set(current);
+        next.delete(key);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        Vibration.vibrate(15);
+        if (next.size === 0) {
+          setRunning(false);
+          setMessage("Yay! Bunny ate all strawberries! 🐰🍓");
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          Vibration.vibrate(120);
+        }
+        return next;
+      });
 
-    return () => {
-      mounted = false;
-      if (tapSound) tapSound.unloadAsync();
-      if (winSound) winSound.unloadAsync();
-    };
-  }, []);
-
-  function playTapFeedback() {
-    if (tapSound) {
-      tapSound.replayAsync();
-    }
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    Vibration.vibrate(20);
+      return { row, col };
+    });
   }
 
-  function randomizeLook() {
-    playTapFeedback();
-    setLipstick(colorChoices[Math.floor(Math.random() * colorChoices.length)]);
-    setBlush(colorChoices[Math.floor(Math.random() * colorChoices.length)]);
-    setEyeshadow(colorChoices[Math.floor(Math.random() * colorChoices.length)]);
-    setLookMessage("Fresh makeover generated! 💄");
-  }
-
-  function revealStyle() {
-    if (winSound) {
-      winSound.replayAsync();
-    }
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    Vibration.vibrate(120);
-    const styles = [
-      "Soft Princess Look 👑",
-      "Cherry Blossom Glow 🌸",
-      "Classic Pink Muse 🎀",
-      "Salmon Chic Star 💫",
-    ];
-    setLookMessage(styles[Math.floor(Math.random() * styles.length)]);
-  }
-
-  function resetLook() {
-    setLipstick(theme.salmonPink);
-    setBlush(theme.classicPink);
-    setEyeshadow(theme.cherryBlossom);
-    setLookMessage("Create your cutest birthday glam look! ✨");
+  function resetGame() {
+    setBunny(START);
+    setDirection("right");
+    setRunning(true);
+    setMessage("Guide bunny to eat all strawberries! 🍓");
+    setStrawberries(createStrawberries(ROWS, COLS, OBSTACLES, START));
   }
 
   return (
     <PinkBackground>
       <View style={styles.container}>
-        <Text style={styles.title}>Makeup Stylist 💄</Text>
-        <Text style={styles.desc}>Pick shades and style your birthday-glam bestie look.</Text>
+        <Text style={styles.title}>Bunny Pac Game 🐰</Text>
+        <Text style={styles.desc}>Pink maze + obstacles. Eat all strawberry balls!</Text>
 
-        <View style={styles.faceCard}>
-          <View style={styles.face}>
-            <View style={[styles.eyeShadow, styles.leftEye, { backgroundColor: eyeshadow }]} />
-            <View style={[styles.eyeShadow, styles.rightEye, { backgroundColor: eyeshadow }]} />
-            <View style={[styles.blush, styles.leftBlush, { backgroundColor: blush }]} />
-            <View style={[styles.blush, styles.rightBlush, { backgroundColor: blush }]} />
-            <View style={[styles.lips, { backgroundColor: lipstick }]} />
-          </View>
-          <Text style={styles.lookMessage}>{lookMessage}</Text>
+        <View style={styles.statsRow}>
+          <Text style={styles.statText}>Eaten: {totalStrawberries - strawberries.size}</Text>
+          <Text style={styles.statText}>Left: {strawberries.size}</Text>
+        </View>
+        <Text style={styles.message}>{message}</Text>
+
+        <View style={styles.grid}>
+          {Array.from({ length: ROWS }).map((_, row) => (
+            <View key={`r-${row}`} style={styles.gridRow}>
+              {Array.from({ length: COLS }).map((__, col) => {
+                const key = cellKey(row, col);
+                const isBunny = bunny.row === row && bunny.col === col;
+                const isObstacle = OBSTACLES.has(key);
+                const isStrawberry = strawberries.has(key);
+                return (
+                  <View
+                    key={key}
+                    style={[
+                      styles.cell,
+                      isObstacle ? styles.obstacle : styles.walkable,
+                    ]}
+                  >
+                    {isBunny ? <Text style={styles.cellEmoji}>🐰</Text> : null}
+                    {!isBunny && isStrawberry ? <Text style={styles.cellEmoji}>🍓</Text> : null}
+                  </View>
+                );
+              })}
+            </View>
+          ))}
         </View>
 
-        <Text style={styles.sectionTitle}>Lipstick</Text>
-        <ColorRow colors={colorChoices} onPick={(c) => { playTapFeedback(); setLipstick(c); }} />
+        <View style={styles.controls}>
+          <Pressable style={styles.controlBtn} onPress={() => setDirection("up")}>
+            <Text style={styles.controlText}>↑</Text>
+          </Pressable>
+          <View style={styles.middleControls}>
+            <Pressable style={styles.controlBtn} onPress={() => setDirection("left")}>
+              <Text style={styles.controlText}>←</Text>
+            </Pressable>
+            <Pressable style={styles.controlBtn} onPress={() => setDirection("right")}>
+              <Text style={styles.controlText}>→</Text>
+            </Pressable>
+          </View>
+          <Pressable style={styles.controlBtn} onPress={() => setDirection("down")}>
+            <Text style={styles.controlText}>↓</Text>
+          </Pressable>
+        </View>
 
-        <Text style={styles.sectionTitle}>Eyeshadow</Text>
-        <ColorRow colors={colorChoices} onPick={(c) => { playTapFeedback(); setEyeshadow(c); }} />
-
-        <Text style={styles.sectionTitle}>Blush</Text>
-        <ColorRow colors={colorChoices} onPick={(c) => { playTapFeedback(); setBlush(c); }} />
-
-        <Pressable style={styles.btn} onPress={randomizeLook}>
-          <Text style={styles.btnText}>Random Style</Text>
+        <Pressable style={[styles.btn, !running ? styles.btnMuted : null]} onPress={() => setRunning((v) => !v)}>
+          <Text style={styles.btnText}>{running ? "Pause" : "Resume"}</Text>
         </Pressable>
-        <Pressable style={styles.btn} onPress={revealStyle}>
-          <Text style={styles.btnText}>Reveal My Style</Text>
-        </Pressable>
-        <Pressable style={styles.secondaryBtn} onPress={resetLook}>
+        <Pressable style={styles.secondaryBtn} onPress={resetGame}>
           <Text style={styles.secondaryBtnText}>Reset</Text>
         </Pressable>
       </View>
@@ -128,72 +148,59 @@ export default function BioGameScreen() {
   );
 }
 
-function ColorRow({ colors, onPick }) {
-  return (
-    <View style={styles.colorRow}>
-      {colors.map((color) => (
-        <Pressable
-          key={color}
-          onPress={() => onPick(color)}
-          style={[styles.colorDot, { backgroundColor: color }]}
-        />
-      ))}
-    </View>
-  );
+function createStrawberries(rows, cols, obstacles, start) {
+  const dots = new Set();
+  for (let r = 0; r < rows; r += 1) {
+    for (let c = 0; c < cols; c += 1) {
+      const key = `${r}-${c}`;
+      if (!obstacles.has(key) && !(r === start.row && c === start.col)) {
+        dots.add(key);
+      }
+    }
+  }
+  return dots;
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 18, justifyContent: "center" },
+  container: { flex: 1, padding: 14, justifyContent: "center" },
   title: { color: theme.textPrimary, fontSize: 28, fontWeight: "800", textAlign: "center", marginBottom: 8 },
-  desc: { color: theme.textSecondary, textAlign: "center", fontSize: 16, marginBottom: 14 },
-  faceCard: {
-    backgroundColor: "rgba(239,196,211,0.5)",
-    borderRadius: 16,
-    padding: 14,
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  face: {
-    width: 140,
-    height: 170,
-    borderRadius: 80,
-    backgroundColor: theme.palePink,
-    position: "relative",
-  },
-  eyeShadow: {
-    width: 36,
-    height: 16,
-    borderRadius: 8,
-    position: "absolute",
-    top: 54,
-    opacity: 0.85,
-  },
-  leftEye: { left: 24 },
-  rightEye: { right: 24 },
-  blush: {
-    width: 30,
-    height: 20,
-    borderRadius: 10,
-    position: "absolute",
-    top: 88,
-    opacity: 0.75,
-  },
-  leftBlush: { left: 18 },
-  rightBlush: { right: 18 },
-  lips: {
-    width: 42,
-    height: 14,
-    borderRadius: 9,
-    position: "absolute",
-    bottom: 34,
+  desc: { color: theme.textSecondary, textAlign: "center", fontSize: 15, marginBottom: 8 },
+  statsRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 4 },
+  statText: { color: theme.textPrimary, fontWeight: "700" },
+  message: { color: theme.textMuted, textAlign: "center", marginBottom: 10, fontWeight: "700" },
+  grid: {
     alignSelf: "center",
+    backgroundColor: "rgba(239,196,211,0.65)",
+    borderRadius: 12,
+    padding: 6,
+    marginBottom: 10,
   },
-  lookMessage: { color: theme.textPrimary, marginTop: 10, fontWeight: "700" },
-  sectionTitle: { color: theme.textPrimary, fontWeight: "700", marginTop: 4, marginBottom: 6 },
-  colorRow: { flexDirection: "row", gap: 10, marginBottom: 8 },
-  colorDot: { width: 30, height: 30, borderRadius: 20, borderWidth: 2, borderColor: theme.classicPink },
+  gridRow: { flexDirection: "row" },
+  cell: {
+    width: 28,
+    height: 28,
+    margin: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 6,
+  },
+  walkable: { backgroundColor: "rgba(248,223,233,0.95)" },
+  obstacle: { backgroundColor: theme.cherryBlossom },
+  cellEmoji: { fontSize: 15 },
+  controls: { alignItems: "center", marginBottom: 8 },
+  middleControls: { flexDirection: "row", gap: 10, marginVertical: 8 },
+  controlBtn: {
+    width: 52,
+    height: 44,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.salmonPink,
+  },
+  controlText: { color: theme.textPrimary, fontSize: 22, fontWeight: "900" },
   btn: { backgroundColor: theme.salmonPink, borderRadius: 12, paddingVertical: 14, marginTop: 6 },
   btnText: { color: theme.textPrimary, textAlign: "center", fontWeight: "700", fontSize: 16 },
+  btnMuted: { opacity: 0.65 },
   secondaryBtn: {
     backgroundColor: theme.lightPink,
     borderRadius: 12,
