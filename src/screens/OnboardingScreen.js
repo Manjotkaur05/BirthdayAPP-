@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import PinkBackground from "../components/PinkBackground";
 import theme from "../theme";
 
@@ -33,7 +33,7 @@ export default function OnboardingScreen({ onDone }) {
 
   return (
     <PinkBackground>
-      <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <Image source={bunny} style={styles.bunny} />
         <Text style={styles.emoji}>{current.emoji}</Text>
         <Text style={styles.title}>{current.title}</Text>
@@ -58,7 +58,7 @@ export default function OnboardingScreen({ onDone }) {
         <Pressable onPress={onDone}>
           <Text style={styles.skip}>Skip</Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </PinkBackground>
   );
 }

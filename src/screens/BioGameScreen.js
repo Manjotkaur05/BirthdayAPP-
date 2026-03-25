@@ -1,8 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Pressable, StyleSheet, Text, Vibration, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, Vibration, View } from "react-native";
 import * as Haptics from "expo-haptics";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import PinkBackground from "../components/PinkBackground";
 import theme from "../theme";
+
+const HIGH_SCORE_KEY = "shine.bunnyPac.highScore";
 
 export default function BioGameScreen() {
   const ROWS = 10;
@@ -44,6 +47,7 @@ export default function BioGameScreen() {
   const [timeLeft, setTimeLeft] = useState(90);
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(1);
+  const [highScore, setHighScore] = useState(0);
 
   const totalStrawberries = initialStrawberries.size;
   const combinedObstacles = useMemo(() => {
@@ -51,6 +55,17 @@ export default function BioGameScreen() {
     movingObstacles.forEach((item) => next.add(cellKey(item.row, item.col)));
     return next;
   }, [BASE_OBSTACLES, movingObstacles]);
+
+  useEffect(() => {
+    loadHighScore();
+  }, []);
+
+  useEffect(() => {
+    if (score > highScore) {
+      setHighScore(score);
+      AsyncStorage.setItem(HIGH_SCORE_KEY, String(score));
+    }
+  }, [score, highScore]);
 
   useEffect(() => {
     if (!running || gameOver || strawberries.size === 0) return;
@@ -210,9 +225,29 @@ export default function BioGameScreen() {
     }
   }, [strawberries.size, totalStrawberries, enemies.length]);
 
+  async function loadHighScore() {
+    try {
+      const raw = await AsyncStorage.getItem(HIGH_SCORE_KEY);
+      if (!raw) return;
+      const parsed = Number(raw);
+      if (!Number.isNaN(parsed)) {
+        setHighScore(parsed);
+      }
+    } catch {
+      // Ignore read failure and keep playing.
+    }
+  }
+
+  function endGame() {
+    setRunning(false);
+    setGameOver(true);
+    setMessage("Game ended. Tap Reset to play again.");
+    setCombo(1);
+  }
+
   return (
     <PinkBackground>
-      <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Bunny Pac Game 🐰</Text>
         <Text style={styles.desc}>Pink maze + obstacles. Eat all strawberry balls!</Text>
 
@@ -227,6 +262,10 @@ export default function BioGameScreen() {
         <View style={styles.statsRow}>
           <Text style={styles.statText}>Score: {score}</Text>
           <Text style={styles.statText}>Combo: x{combo}</Text>
+        </View>
+        <View style={styles.statsRow}>
+          <Text style={styles.statText}>Highest Score: {highScore}</Text>
+          <Text style={styles.statText}>Mode: Hard</Text>
         </View>
         <Text style={styles.message}>{message}</Text>
 
@@ -277,10 +316,13 @@ export default function BioGameScreen() {
         <Pressable style={[styles.btn, !running ? styles.btnMuted : null]} onPress={() => setRunning((v) => !v)}>
           <Text style={styles.btnText}>{running ? "Pause" : "Resume"}</Text>
         </Pressable>
+        <Pressable style={styles.btn} onPress={endGame}>
+          <Text style={styles.btnText}>End Game</Text>
+        </Pressable>
         <Pressable style={styles.secondaryBtn} onPress={resetGame}>
           <Text style={styles.secondaryBtnText}>Reset</Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </PinkBackground>
   );
 }

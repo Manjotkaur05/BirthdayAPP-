@@ -1,5 +1,5 @@
 import React from "react";
-import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import PinkBackground from "../components/PinkBackground";
 import theme from "../theme";
 
@@ -18,7 +18,7 @@ function Btn({ label, onPress }) {
 export default function CalendarScreen() {
   return (
     <PinkBackground>
-      <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Attach Google Calendar</Text>
         <Text style={styles.desc}>
           Use these buttons to open Google Calendar and quickly add a birthday event.
@@ -26,7 +26,7 @@ export default function CalendarScreen() {
         <Btn label="Open Google Calendar" onPress={() => Linking.openURL(CALENDAR_URL)} />
         <Btn label="Add Birthday Event" onPress={() => Linking.openURL(EVENT_URL)} />
         <Text style={styles.tip}>Tip: Sign in with your Google account in browser if prompted.</Text>
-      </View>
+      </ScrollView>
     </PinkBackground>
   );
 }

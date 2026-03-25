@@ -1,12 +1,12 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import PinkBackground from "../components/PinkBackground";
 import theme from "../theme";
 
 export default function JournalCoverScreen({ navigation }) {
   return (
     <PinkBackground>
-      <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Personal Journal</Text>
         <Text style={styles.subtitle}>
           Open your cover page, then write your thoughts on journal pages.
@@ -14,7 +14,7 @@ export default function JournalCoverScreen({ navigation }) {
         <Pressable style={styles.btn} onPress={() => navigation.navigate("JournalWrite")}>
           <Text style={styles.btnText}>Open Journal Pages</Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </PinkBackground>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import PinkBackground from "../components/PinkBackground";
 import theme from "../theme";
 
@@ -8,7 +8,7 @@ const background = require("../../assets/background.jpg");
 export default function HomeScreen() {
   return (
     <PinkBackground image={background}>
-      <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Happy Birthday, Bestie! 🎂</Text>
         <Text style={styles.message}>
           You make every day brighter, kinder, and more fun. I am so lucky to have you in my
@@ -18,7 +18,7 @@ export default function HomeScreen() {
           <Text style={styles.footerLine1}>Made with love for birthday girl</Text>
           <Text style={styles.footerLine2}>Bestie Forever ✨</Text>
         </View>
-      </View>
+      </ScrollView>
     </PinkBackground>
   );
 }

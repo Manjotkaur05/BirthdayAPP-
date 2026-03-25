@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from "react";
 import {
-  FlatList,
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -103,8 +103,20 @@ export default function JournalWriteScreen() {
 
   return (
     <PinkBackground>
-      <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.heading}>Journal Page</Text>
+
+        <TextInput
+          value={searchText}
+          onChangeText={setSearchText}
+          placeholder="Search title or note"
+          placeholderTextColor={theme.lightPink}
+          style={styles.search}
+        />
 
         <View style={styles.card}>
           <TextInput
@@ -130,14 +142,6 @@ export default function JournalWriteScreen() {
           </Pressable>
         </View>
 
-        <TextInput
-          value={searchText}
-          onChangeText={setSearchText}
-          placeholder="Search title or note"
-          placeholderTextColor={theme.lightPink}
-          style={styles.search}
-        />
-
         {filteredEntries.length === 0 ? (
           <View style={styles.emptyBox}>
             <Text style={styles.emptyText}>
@@ -145,12 +149,9 @@ export default function JournalWriteScreen() {
             </Text>
           </View>
         ) : (
-          <FlatList
-            data={filteredEntries}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingBottom: 22 }}
-            renderItem={({ item }) => (
-              <Pressable style={styles.entry} onPress={() => startEdit(item)}>
+          <View style={styles.entriesWrap}>
+            {filteredEntries.map((item) => (
+              <Pressable key={item.id} style={styles.entry} onPress={() => startEdit(item)}>
                 <Text style={styles.entryTitle}>{item.title}</Text>
                 <Text style={styles.entryNote}>{item.note}</Text>
                 <View style={styles.row}>
@@ -160,10 +161,10 @@ export default function JournalWriteScreen() {
                   </Pressable>
                 </View>
               </Pressable>
-            )}
-          />
+            ))}
+          </View>
         )}
-      </View>
+      </ScrollView>
 
       <Modal visible={!!editingEntry} transparent animationType="slide">
         <View style={styles.modalBackdrop}>
@@ -222,6 +223,7 @@ const styles = StyleSheet.create({
   emptyBox: { flex: 1, justifyContent: "center", alignItems: "center" },
   emptyText: { color: theme.textSecondary, fontWeight: "700" },
   entry: { backgroundColor: "rgba(239,196,211,0.95)", borderRadius: 12, padding: 12, marginBottom: 10 },
+  entriesWrap: { paddingBottom: 22 },
   entryTitle: { color: theme.textPrimary, fontSize: 16, fontWeight: "800" },
   entryNote: { color: theme.textSecondary, marginTop: 5, marginBottom: 7 },
   row: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
