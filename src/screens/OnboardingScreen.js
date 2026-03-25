@@ -17,7 +17,7 @@ export default function OnboardingScreen({ onDone }) {
       },
       {
         title: "Meet Your Bunny Guide",
-        subtitle: "Tap through to explore wishes, a calendar helper, and a mini bio challenge!",
+        subtitle: "Tap through to explore wishes, a calendar helper, and a mini game!",
         emoji: "🐰",
       },
       {
@@ -67,9 +67,9 @@ const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center", justifyContent: "center", padding: 18 },
   bunny: { width: "90%", height: 220, borderRadius: 22, marginBottom: 16 },
   emoji: { fontSize: 40, marginBottom: 8 },
-  title: { color: theme.palePink, fontSize: 28, fontWeight: "800", textAlign: "center" },
+  title: { color: theme.textPrimary, fontSize: 28, fontWeight: "800", textAlign: "center" },
   subtitle: {
-    color: theme.classicPink,
+    color: theme.textSecondary,
     fontSize: 16,
     textAlign: "center",
     lineHeight: 22,
@@ -86,6 +86,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 14,
   },
-  mainBtnText: { color: theme.palePink, fontWeight: "700", textAlign: "center", fontSize: 16 },
-  skip: { color: theme.palePink, fontWeight: "600" },
+  mainBtnText: { color: theme.textPrimary, fontWeight: "700", textAlign: "center", fontSize: 16 },
+  skip: { color: theme.textPrimary, fontWeight: "600" },
 });

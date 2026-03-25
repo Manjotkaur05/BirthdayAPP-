@@ -33,9 +33,9 @@ export default function CalendarScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", padding: 20 },
-  title: { color: theme.palePink, fontSize: 28, fontWeight: "800", textAlign: "center" },
+  title: { color: theme.textPrimary, fontSize: 28, fontWeight: "800", textAlign: "center" },
   desc: {
-    color: theme.classicPink,
+    color: theme.textSecondary,
     fontSize: 16,
     textAlign: "center",
     lineHeight: 22,
@@ -48,6 +48,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 12,
   },
-  btnText: { color: theme.palePink, textAlign: "center", fontWeight: "700", fontSize: 16 },
-  tip: { color: theme.lightPink, textAlign: "center", marginTop: 8 },
+  btnText: { color: theme.textPrimary, textAlign: "center", fontWeight: "700", fontSize: 16 },
+  tip: { color: theme.textMuted, textAlign: "center", marginTop: 8 },
 });

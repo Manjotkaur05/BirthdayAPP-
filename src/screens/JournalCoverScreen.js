@@ -3,11 +3,9 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import PinkBackground from "../components/PinkBackground";
 import theme from "../theme";
 
-const journalCover = require("../../assets/journal-cover.jpg");
-
 export default function JournalCoverScreen({ navigation }) {
   return (
-    <PinkBackground image={journalCover}>
+    <PinkBackground>
       <View style={styles.container}>
         <Text style={styles.title}>Personal Journal</Text>
         <Text style={styles.subtitle}>
@@ -23,8 +21,8 @@ export default function JournalCoverScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", padding: 20 },
-  title: { color: theme.palePink, fontSize: 34, fontWeight: "900", textAlign: "center", marginBottom: 10 },
-  subtitle: { color: theme.classicPink, textAlign: "center", lineHeight: 22, marginBottom: 16 },
+  title: { color: theme.textPrimary, fontSize: 34, fontWeight: "900", textAlign: "center", marginBottom: 10 },
+  subtitle: { color: theme.textSecondary, textAlign: "center", lineHeight: 22, marginBottom: 16 },
   btn: { backgroundColor: theme.salmonPink, borderRadius: 12, paddingVertical: 14 },
-  btnText: { color: theme.palePink, textAlign: "center", fontWeight: "700", fontSize: 16 },
+  btnText: { color: theme.textPrimary, textAlign: "center", fontWeight: "700", fontSize: 16 },
 });

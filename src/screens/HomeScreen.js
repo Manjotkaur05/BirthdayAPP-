@@ -27,13 +27,13 @@ const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "space-between", alignItems: "center", padding: 20 },
   title: {
     marginTop: 90,
-    color: theme.palePink,
+    color: theme.textPrimary,
     fontSize: 33,
     textAlign: "center",
     fontWeight: "900",
   },
   message: {
-    color: theme.palePink,
+    color: theme.textPrimary,
     fontSize: 20,
     textAlign: "center",
     lineHeight: 30,
@@ -42,6 +42,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   footer: { marginBottom: 24, alignItems: "center" },
-  footerLine1: { color: theme.palePink, fontWeight: "700" },
-  footerLine2: { color: theme.classicPink, marginTop: 4 },
+  footerLine1: { color: theme.textPrimary, fontWeight: "700" },
+  footerLine2: { color: theme.textSecondary, marginTop: 4 },
 });

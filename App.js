@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { Image } from "react-native";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -13,6 +14,7 @@ import theme from "./src/theme";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+const journalTabIcon = require("./assets/journal-cover.jpg");
 
 function JournalStack() {
   return (
@@ -70,11 +72,23 @@ export default function App() {
           tabBarActiveTintColor: theme.palePink,
           tabBarInactiveTintColor: theme.lightPink,
           tabBarIcon: ({ color, size }) => {
+            if (route.name === "Journal") {
+              return (
+                <Image
+                  source={journalTabIcon}
+                  style={{
+                    width: size + 4,
+                    height: size + 4,
+                    borderRadius: 4,
+                    opacity: color === theme.palePink ? 1 : 0.75,
+                  }}
+                />
+              );
+            }
             const iconMap = {
               Home: "home",
               Calendar: "calendar-today",
-              "Bio Game": "eco",
-              Journal: "menu-book",
+              "Mini Game": "face-retouching-natural",
             };
             return <MaterialIcons name={iconMap[route.name]} size={size} color={color} />;
           },
@@ -82,7 +96,7 @@ export default function App() {
       >
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Calendar" component={CalendarScreen} />
-        <Tab.Screen name="Bio Game" component={BioGameScreen} />
+        <Tab.Screen name="Mini Game" component={BioGameScreen} />
         <Tab.Screen
           name="Journal"
           component={JournalStack}
